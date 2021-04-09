@@ -2,15 +2,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
-import requests
+import time
 from bs4 import BeautifulSoup
 import plotly.express as px
 import seaborn as sns
 import squarify
 import pycountry
 import geopandas
-from wordcloud import WordCloud
-
+import plotly.graph_objects as go
+from PIL import Image
+from wordcloud import WordCloud, STOPWORDS,ImageColorGenerator
+from celluloid import Camera
 
 st.title("Nobelevo4ka")
 
@@ -33,7 +35,6 @@ with st.echo(code_location='below'):
     data = pd.read_csv('complete.csv', delimiter=',').sort_values("awardYear").reset_index()
     del data["index"]
 
-"Вот сам датафрейм, прошу любить и жаловать"
 
 with st.echo(code_location='below'):
     data["gender"] = data["gender"].fillna("Organization")
@@ -148,6 +149,7 @@ with st.echo(code_location='below'):
                 data[data["awardYear"] == int(i)]["birth_countryNow"].to_list().count(j))
 
     po_strane = pd.DataFrame(strany[strany.columns[1:]].sum().sort_values(ascending=False))
+
     po_strane = po_strane.iloc[0:25, :]
     plt.figure(figsize=(9, 9))
     ax = plt.subplot(111, polar=True)
@@ -180,6 +182,8 @@ with st.echo(code_location='below'):
 
 st.pyplot()
 
+
+
 with st.echo(code_location='below'):
     country = pd.DataFrame(strany[strany.columns[2:]].sum())
     country = country.reset_index(level=0, drop=False)
@@ -197,7 +201,6 @@ with st.echo(code_location='below'):
             except:
                 CODE.append('None')
         return CODE
-
 
     # END FROM https://melaniesoek0120.medium.com/data-visualization-how-to-plot-a-map-with-geopandas-in-python-73b10dcd4b4b
 
@@ -226,26 +229,137 @@ with st.echo(code_location='below'):
     ax.get_figure()
 st.pyplot()
 
+"Интересно, а о чём же вообще все эти научные работы? Наверняка у них очень заумные названия..." \
+"Но должны же слова иногда повторяться?"
+with st.echo(code_location='below'):
+    # idea from https://plotly.com/python/choropleth-maps/
+    fig = go.Figure(data=go.Choropleth(locations = country['CODE'],z = country[0],text = country['index'],colorscale = "spectral",
+        autocolorscale=False,reversescale=False,
+        marker_line_color='darkgray',marker_line_width=0.5,colorbar_title = 'No.'))
+
+    fig.update_layout(
+        title_text='Nobel prizes per country',geo=dict(showframe=False,showcoastlines=False,
+            projection_type='equirectangular'),annotations = [dict(x=0.55, y=0.1, xref='paper',yref='paper', text="Можно туда сюда поводить потыкать",showarrow = False)])
+st.write(fig)
 
 
-from PIL import Image
-from wordcloud import WordCloud, STOPWORDS,ImageColorGenerator
-
-
-#FROM https: // amueller.github.io / word_cloud / auto_examples / parrot.html  # sphx-glr-auto-examples-parrot-py
-s = st.selectbox("Chose your fighter:", b)
-text = ""
-for i in data[data["category"]==s]["motivation"]:
-    text+= " "+i
-mask = np.array(Image.open(str(s)+'.png'))
-
-mask_colors = ImageColorGenerator(mask)
-wc = WordCloud(stopwords=STOPWORDS, mask=mask, background_color="white", max_words=2000, max_font_size=256,
-random_state=42, width=mask.shape[1],height=mask.shape[0],color_func=mask_colors)
-wc.generate(text)
-plt.imshow(wc, interpolation="bilinear")
-plt.axis('off')
+with st.echo(code_location='below'):
+    s = st.selectbox("Chose your fighter:", b)
+    text = ""
+    for i in data[data["category"]==s]["motivation"]:
+        text+= " "+i
+    mask = np.array(Image.open("Literture.png"))
+    #FROM https://towardsdatascience.com/create-word-cloud-into-any-shape-you-want-using-python-d0b88834bc32
+    mask_colors = ImageColorGenerator(mask)
+    wc = WordCloud(stopwords=STOPWORDS, mask=mask, background_color="white", max_words=2000, max_font_size=256,
+    random_state=42, width=mask.shape[1],height=mask.shape[0],color_func=mask_colors)
+    #END FROM https://towardsdatascience.com/create-word-cloud-into-any-shape-you-want-using-python-d0b88834bc32
+    wc.generate(text)
+    plt.imshow(wc, interpolation="bilinear")
+    plt.axis('off')
 st.pyplot()
+
+
+
+with st.echo(code_location='below'):
+    univ = data_year[["Year", "male"]].copy()
+
+    for i in set(data["category"].to_list()):
+        univ[i] = 0
+
+    for j in ["Literature","Chemistry", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]:
+        for i in data_year["Year"]:
+            if i == 1901:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))
+            else:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))+int(univ.loc[i - 1902 - 3 * int(i / 1943)][j])
+    univ = univ.set_index("Year").drop(columns="male")
+    print(univ)
+    print(univ.sort_values(univ.loc["2019"],axis=1))
+
+
+
+the_plot = st.pyplot(plt)
+def animate(i, x, y, colors):
+    ax.barh(x, width=y, color=colors)
+    ax.set_title(i,)
+    the_plot.pyplot(plt)
+
+fig, ax = plt.subplots()
+for i in range(110):
+    width = univ.iloc[i].values
+    animate(i, univ.iloc[i].index, width, colors)
+    time.sleep(0.2)
+
+
+
+aue  = st.checkbox("Го еще раз?",["No","Yes"])
+
+
+
+"""fig, ax = plt.subplots()
+camera = Camera(fig)
+for i in range(20):
+    ax.barh(univ.iloc[i].index, width=univ.iloc[i].values, color=colors)
+    camera.snap()
+camera.animate()
+st.pyplot()"""
+
+
+
+yes  = st.checkbox("Хочу посмотреть сразу на все предметы")
+if yes == True:
+    with st.echo(code_location='below'):
+        for j in b:
+            text = ""
+            for i in data[data["category"] == j]["motivation"]:
+                text += " " + i
+            wordcloud = WordCloud(width=400, height=400, margin=0, background_color="white").generate(text)
+            plt.subplot(2, 3, b.index(j) + 1)
+            plt.imshow(wordcloud, interpolation='bilinear')
+            plt.axis("off")
+            plt.title(str(j))
+            plt.margins(x=0, y=0)
+
+
+if page == "Search":
+    desired_width = 320
+    pd.set_option('display.width', desired_width)
+    pd.set_option('display.max_columns', 10)
+
+
+    data = pd.read_csv('complete.csv', delimiter=',').sort_values("awardYear").reset_index()
+    del data["index"]
+
+    # Повтор из прошлого цикла
+    data["gender"] = data["gender"].fillna("Organization")
+    data_year = pd.DataFrame({"Year": range(1901, 1940), "male": 0, "female": 0, "Organization": 0})
+    data_year2 = pd.DataFrame({"Year": range(1943, 2020), "male": 0, "female": 0, "Organization": 0})
+    data_year = pd.concat([data_year, data_year2], ignore_index=True)
+    for j in ["male", "female", "Organization"]:
+        for i in range(1901, 1939):
+            data_year.loc[i - 1901][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
+        for i in range(1943, 2020):
+            data_year.loc[i - 1904][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
+    a = ["Chemistry", "Literature", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]
+
+    cat = st.selectbox('Выберите интересующую вас область:', a)
+    year = st.selectbox('Выберите интересующий вас год:', range(1901,2020))
+    if year>1939 and year < 1943:
+        "В этом году нобелевскую премию по данному предмету никто не получал. Да и по другим претметам тоже. " \
+        "Война всё-так дело серьезное"
+
+    else:
+        if len(data[data["awardYear"] == year][data["category"] == cat]) ==0:
+            "В этом году по"+" "+cat+" никто не получал премию. Знаете почему? Её тогда ещё не было)) " \
+                                     "Она появилась в 1969."
+
+        elif len(data[data["awardYear"] == year][data["category"] == cat]) ==1:
+            "В этом году Нобелевскую премию по "+str(cat)+" получил "+ \
+            data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
+            "На момент"
 
 
 
@@ -267,6 +381,8 @@ if yes == True:
             plt.title(str(j))
             plt.margins(x=0, y=0)
 st.pyplot()
+
+
 
 if page == "Search":
     desired_width = 320
