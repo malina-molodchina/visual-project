@@ -1,1 +1,1 @@
-web: sh setup.sh && streamlit run nobelevo4ka.py
+web: sh setup.sh && streamlit run nobelevka.py
