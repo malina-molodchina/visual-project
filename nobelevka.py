@@ -240,7 +240,7 @@ fig, ax = plt.subplots()
 for i in range(0,116):
     width = univ.iloc[i].values
     animate(i, univ.iloc[i].index, width, colors)
-    time.sleep(0.02)
+    time.sleep(0.003)
 
 
 
