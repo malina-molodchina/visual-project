@@ -197,61 +197,7 @@ st.pyplot()
 "А вот тут можно сломать мозг, но всё на самом деле проще. По оси Y отложено количество человек, которые взяли нобеля " \
 "в каждый год. Верхняя огибающая - тотал, а если мы рассмотрим закрашенные зоны, то поймём, разбиение на предметы внутри " \
 "этого тотала. В отличии от прошлого графика, этот ещё выресовываает общую тенденцию в виде роста количества премий с теч времени"
-with st.echo(code_location='below'):
-    univ = data_year[["Year", "male"]].copy()
 
-    for i in set(data["category"].to_list()):
-        univ[i] = 0
-
-    for j in ["Literature","Chemistry", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]:
-        for i in data_year["Year"]:
-            if i == 1901:
-                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
-                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))
-            else:
-                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
-                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))+int(univ.loc[i - 1902 - 3 * int(i / 1943)][j])
-    univ = univ.set_index("Year").drop(columns="male")
-    univ = univ.sort_values(univ.iloc[115].name,axis=1)
-    # USED several comments from https://discuss.streamlit.io/t/how-to-animate-a-line-chart/164/2
-
-    #the_plot = st.pyplot(plt)
-    #def animate(i, x, y, colors):
-        #ax.barh(x, width=y, color=colors)
-        #ax.set_title(i, )
-        #the_plot.pyplot(plt)
-    #fig, ax = plt.subplots()
-    #for i in range(110):
-        #width = univ.iloc[i].values
-        #animate(i, univ.iloc[i].index, width, colors)
-        #time.sleep(0.1)
-"Код можно посмотреть в файле, ровно то что закомменчено, но из-за функции код не хочет работать внутри st.echo. Вообще " \
-    "для таких штук есть крутой пакет - celluloid, там есть camera которая позволяет делать красоту, но стрмлит ее поддерживает((("
-
-"Придётся подождать... Это не конец, загрузится - появится продолжение"
-
-the_plot = st.pyplot(plt)
-def animate(i, x, y, colors):
-    ax.barh(x, width=y, color=colors)
-    ax.set_title(1901+i+ 3 * int(i / 39,)-3 * int(i / 78,))
-    the_plot.pyplot(plt)
-
-fig, ax = plt.subplots()
-for i in range(0,116):
-    width = univ.iloc[i].values
-    animate(i, univ.iloc[i].index, width, colors)
-    time.sleep(0.003)
-
-
-
-aue  = st.checkbox("Пропустил всю анимацию? Ну ладноооо, специально для тебя могу повторить, поставь галочку и наберись терпения")
-
-if aue == "Yes":
-    fig, ax = plt.subplots()
-    for i in range(110):
-        width = univ.iloc[i].values
-        animate(i, univ.iloc[i].index, width, colors)
-        time.sleep(0.1)
 
 
 
@@ -398,3 +344,58 @@ if yes == True:
             plt.margins(x=0, y=0)
     st.pyplot()
 
+with st.echo(code_location='below'):
+    univ = data_year[["Year", "male"]].copy()
+
+    for i in set(data["category"].to_list()):
+        univ[i] = 0
+
+    for j in ["Literature","Chemistry", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]:
+        for i in data_year["Year"]:
+            if i == 1901:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))
+            else:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))+int(univ.loc[i - 1902 - 3 * int(i / 1943)][j])
+    univ = univ.set_index("Year").drop(columns="male")
+    univ = univ.sort_values(univ.iloc[115].name,axis=1)
+    # USED several comments from https://discuss.streamlit.io/t/how-to-animate-a-line-chart/164/2
+
+    #the_plot = st.pyplot(plt)
+    #def animate(i, x, y, colors):
+        #ax.barh(x, width=y, color=colors)
+        #ax.set_title(i, )
+        #the_plot.pyplot(plt)
+    #fig, ax = plt.subplots()
+    #for i in range(110):
+        #width = univ.iloc[i].values
+        #animate(i, univ.iloc[i].index, width, colors)
+        #time.sleep(0.1)
+"Код можно посмотреть в файле, ровно то что закомменчено, но из-за функции код не хочет работать внутри st.echo. Вообще " \
+    "для таких штук есть крутой пакет - celluloid, там есть camera которая позволяет делать красоту, но стрмлит ее поддерживает((("
+
+"Придётся подождать... Это не конец, загрузится - появится продолжение"
+
+the_plot = st.pyplot(plt)
+def animate(i, x, y, colors):
+    ax.barh(x, width=y, color=colors)
+    ax.set_title(1901+i+ 3 * int(i / 39,)-3 * int(i / 78,))
+    the_plot.pyplot(plt)
+
+fig, ax = plt.subplots()
+for i in range(0,116):
+    width = univ.iloc[i].values
+    animate(i, univ.iloc[i].index, width, colors)
+    time.sleep(0.003)
+
+
+
+aue  = st.checkbox("Пропустил всю анимацию? Ну ладноооо, специально для тебя могу повторить, поставь галочку и наберись терпения")
+
+if aue == "Yes":
+    fig, ax = plt.subplots()
+    for i in range(110):
+        width = univ.iloc[i].values
+        animate(i, univ.iloc[i].index, width, colors)
+        time.sleep(0.1)
