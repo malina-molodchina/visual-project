@@ -82,34 +82,37 @@ with st.echo(code_location='below'):
 "Стой!!! Совсем забыл сказать, ты можешь воспользоваться уникальной поисковой системой!  Она бесполезная, но вдруг тебе пригодится..." \
 "Код я спрятал, потому что он большой и некрасивый"
 
-"""cat = st.selectbox('Выберите интересующую вас область:',
+cat = st.selectbox('Выберите интересующую вас область:',
                    ["Literature", "Chemistry", "Physiology or Medicine", "Physics", "Economic Sciences"])
 year = st.selectbox('Выберите интересующий вас год:', range(1901, 2020))
+
 
 if year > 1939 and year < 1943:
     "В этом году нобелевскую премию по данному предмету никто не получал. Да и по другим претметам тоже. " \
     "Война всё-так дело серьезное"
+
 else:
-    if len(data[data["awardYear"] == year][data["category"] == cat]) == 0:
+
+    if len(data.loc[data["awardYear"] == year].loc[data["category"] == cat]) == 0:
         "В этом году по Экономике никто не получал премию. Знаете почему? Её тогда ещё не было)) " \
         "Она появилась в 1969."
-    elif len(data[data["awardYear"] == year][data["category"] == cat]) == 1:
+    elif len(data.loc[data["awardYear"] == year].loc[data["category"] == cat]) == 1:
         "В этом году Нобелевскую премию по " + str(cat) + " была вручена " + \
-        data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
+        data.loc[data["awardYear"] == year].loc[data["category"] == cat]["name"].iloc[0]
 
-        "За что получил? Тут всё очев: " + str(data[data["awardYear"] == year][data["category"] == cat]["motivation"].iloc[0])
-        if data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0] == "":
+        "За что получил? Тут всё очев: " + str(data.loc[data["awardYear"] == year].loc[data["category"] == cat]["motivation"].iloc[0])
+        if data.loc[data["awardYear"] == year].loc[data["category"] == cat]["birth_date"].iloc[0] == "":
             st.write("Датафрейм не знает, когда этот человек родился, значит и нам не положено")
         else:
-            st.write("Дата рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
+            st.write("Дата рождения " + str(data.loc[data["awardYear"] == year].loc[data["category"] == cat]["name"].iloc[0])
                      + " - " + \
-                     data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0])
-        if data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0] == "":
+                     data[data["awardYear"] == year].loc[data["category"] == cat]["birth_date"].iloc[0])
+        if data.loc[data["awardYear"] == year].loc[data["category"] == cat]["birth_countryNow"].iloc[0] == "":
             st.write("Датафрейм не знает, где она родилась, значит и нам не положено")
         else:
-            st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
+            st.write("Место рождения " + str(data.loc[data["awardYear"] == year].loc[data["category"] == cat]["name"].iloc[0])
                      + " - " + \
-                     data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0])
+                     data.loc[data["awardYear"] == year].loc[data["category"] == cat]["birth_countryNow"].iloc[0])
     else:
         st.write("В "+str(year)+" году нобелевской премией по "+str(cat)+ " было награждено сразу несколько человек!!")
 
@@ -130,7 +133,7 @@ else:
             st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["name"].iloc[0])
                      + " - " + \
                      data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"][data["name"] == chel].iloc[0])
-"""
+
 
 
 
