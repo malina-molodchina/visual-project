@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 import time
-from bs4 import BeautifulSoup
 import plotly.express as px
 import seaborn as sns
 import squarify
@@ -16,7 +15,7 @@ from celluloid import Camera
 
 st.title("Nobelevo4ka")
 
-page = st.sidebar.selectbox('Select a section:',('Graphics','Search'))
+
 
 st.image('1.jpg')
 "В этой проге я постараюсь визаулизировать данные по Нобелевской премии 1901-2019. " \
@@ -26,10 +25,6 @@ st.image('1.jpg')
 
 
 
-
-desired_width=320
-pd.set_option('display.width', desired_width)
-pd.set_option('display.max_columns',10)
 
 with st.echo(code_location='below'):
     data = pd.read_csv('complete.csv', delimiter=',').sort_values("awardYear").reset_index()
@@ -69,7 +64,7 @@ with st.echo(code_location='below'):
     plt.tight_layout()
     plt.legend(title='Гендерное равенство?! Ну типа', bbox_to_anchor=(1, 1), loc='upper center')
 
-    '''Получился нелепый мужской пакмэн, проглотивший остальных. Действительно, пока что нет никаких новостей,
+''''Получился нелепый мужской пакмэн, проглотивший остальных. Действительно, пока что нет никаких новостей,
     с куммулятивным гендерным распределением всё и так был понятно.'''
 
 st.pyplot(plt)
@@ -84,6 +79,63 @@ with st.echo(code_location='below'):
                 data[data["awardYear"] == int(i)]["category"].to_list().count(j))
         subj.iloc[b.index(j), 1] = data_year[j].sum()
         subj.iloc[b.index(j), 2] = data[data["category"] == j]["gender"].to_list().count("female")
+
+"Стой!!! Совсем забыл сказать, ты можешь воспользоваться уникальной поисковой системой!  Она бесполезная, но вдруг тебе пригодится..." \
+"Код я спрятал, потому что он большой и некрасивый"
+
+cat = st.selectbox('Выберите интересующую вас область:',
+                   ["Literature", "Chemistry", "Physiology or Medicine", "Physics", "Economic Sciences"])
+year = st.selectbox('Выберите интересующий вас год:', range(1901, 2020))
+
+if year > 1939 and year < 1943:
+    "В этом году нобелевскую премию по данному предмету никто не получал. Да и по другим претметам тоже. " \
+    "Война всё-так дело серьезное"
+else:
+    if len(data[data["awardYear"] == year][data["category"] == cat]) == 0:
+        "В этом году по Экономике никто не получал премию. Знаете почему? Её тогда ещё не было)) " \
+        "Она появилась в 1969."
+    elif len(data[data["awardYear"] == year][data["category"] == cat]) == 1:
+        "В этом году Нобелевскую премию по " + str(cat) + " была вручена " + \
+        data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
+
+        "За что получил? Тут всё очев: " + str(data[data["awardYear"] == year][data["category"] == cat]["motivation"].iloc[0])
+        if bool(data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0]) == False:
+            st.write("Датафрейм не знает, когда этот человек родился, значит и нам не положено")
+        else:
+            st.write("Дата рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
+                     + " - " + \
+                     data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0])
+        if bool(data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0]) == False:
+            st.write("Датафрейм не знает, где она родилась, значит и нам не положено")
+        else:
+            st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
+                     + " - " + \
+                     data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0])
+    else:
+        st.write("В "+str(year)+" году нобелевской премией по "+str(cat)+ " было награждено сразу несколько человек!!")
+
+        chel = st.selectbox(
+            "Выберите, кто именно вас интересует: ", data[data["awardYear"] == year][data["category"] == cat]["name"].to_list())
+
+        "За что получил? Тут всё очев: " + str(
+            data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["motivation"].iloc[0])
+        if bool(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_date"].iloc[0]) == False:
+            st.write("Датафрейм не знает, когда этот человек родился, значит и нам не положено")
+        else:
+            st.write("Дата рождения " + str(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["name"].iloc[0])
+                     + " - " + \
+                     data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_date"].iloc[0])
+        if bool(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_countryNow"].iloc[0]) == False:
+            st.write("Датафрейм не знает, где она родилась, значит и нам не положено")
+        else:
+            st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["name"].iloc[0])
+                     + " - " + \
+                     data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"][data["name"] == chel].iloc[0])
+
+
+
+
+
 
 with st.echo(code_location='below'):
     sns.set_theme(style="whitegrid")
@@ -119,6 +171,11 @@ with st.echo(code_location='below'):
     sns.set_theme()
     f, ax = plt.subplots(figsize=(10, 3))
     sns.heatmap(x, annot=False, fmt="d", linewidths=0.05, ax=ax)
+"""Цветовая палитра показывает, сколько человек в конкретный год взяли Нобеля в конкретной категории. По литературе, 
+например, почти во все года был награждён один человек, что достаточно логично. Действительно интересный момент, 
+который мы видим - в естественных науках с момента появления премии количество дуэтов/трио постепенно росло  и в 
+последние десятителия стало модно брать нобеля не одному, а со своими корешами."""
+
 st.pyplot()
 
 with st.echo(code_location='below'):
@@ -135,6 +192,65 @@ with st.echo(code_location='below'):
     x.index = data_year["Year"]
     x.plot.area(color=colors)
 st.pyplot()
+"А вот тут можно сломать мозг, но всё на самом деле проще. По оси Y отложено количество человек, которые взяли нобеля " \
+"в каждый год. Верхняя огибающая - тотал, а если мы рассмотрим закрашенные зоны, то поймём, разбиение на предметы внутри " \
+"этого тотала. В отличии от прошлого графика, этот ещё выресовываает общую тенденцию в виде роста количества премий с теч времени"
+with st.echo(code_location='below'):
+    univ = data_year[["Year", "male"]].copy()
+
+    for i in set(data["category"].to_list()):
+        univ[i] = 0
+
+    for j in ["Literature","Chemistry", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]:
+        for i in data_year["Year"]:
+            if i == 1901:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))
+            else:
+                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
+                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))+int(univ.loc[i - 1902 - 3 * int(i / 1943)][j])
+    univ = univ.set_index("Year").drop(columns="male")
+    univ = univ.sort_values(univ.iloc[115].name,axis=1)
+    # USED several comments from https://discuss.streamlit.io/t/how-to-animate-a-line-chart/164/2
+
+    #the_plot = st.pyplot(plt)
+    #def animate(i, x, y, colors):
+        #ax.barh(x, width=y, color=colors)
+        #ax.set_title(i, )
+        #the_plot.pyplot(plt)
+    #fig, ax = plt.subplots()
+    #for i in range(110):
+        #width = univ.iloc[i].values
+        #animate(i, univ.iloc[i].index, width, colors)
+        #time.sleep(0.1)
+"Код можно посмотреть в файле, ровно то что закомменчено, но из-за функции код не хочет работать внутри st.echo. Вообще " \
+    "для таких штук есть крутой пакет - celluloid, там есть camera которая позволяет делать красоту, но стрмлит ее поддерживает((("
+
+"Придётся подождать... Это не конец, загрутся - появится продолжение"
+
+the_plot = st.pyplot(plt)
+def animate(i, x, y, colors):
+    ax.barh(x, width=y, color=colors)
+    ax.set_title(1901+i+ 3 * int(i / 39,)-3 * int(i / 78,))
+    the_plot.pyplot(plt)
+
+fig, ax = plt.subplots()
+for i in range(0,116):
+    width = univ.iloc[i].values
+    animate(i, univ.iloc[i].index, width, colors)
+    time.sleep(0.02)
+
+
+
+aue  = st.checkbox("Пропустил всю анимацию? Ну ладноооо, специально для тебя могу повторить, поставь галочку и наберись терпения")
+
+if aue == "Yes":
+    fig, ax = plt.subplots()
+    for i in range(110):
+        width = univ.iloc[i].values
+        animate(i, univ.iloc[i].index, width, colors)
+        time.sleep(0.1)
+
 
 
 with st.echo(code_location='below'):
@@ -179,7 +295,8 @@ with st.echo(code_location='below'):
                                                                                :, 0])), ha=alignment, va='center',
                 rotation=rotation, rotation_mode="anchor")
     # END FROM https://www.python-graph-gallery.com/circular-barplot-basic
-
+"тут и так всё понятно"
+"Btw, я бы на вашем месте не проверял числа, потому что они не сойдутся, во всём виноват датафрейм((( Я честно пытался ручками сделать его лучше, но он всё ещё дефектный парень"
 st.pyplot()
 
 
@@ -227,10 +344,12 @@ with st.echo(code_location='below'):
     ax.set_axis_off()
     ax.get_legend().set_bbox_to_anchor((.12, .12))
     ax.get_figure()
+
+"Карта номер рас:"
 st.pyplot()
 
-"Интересно, а о чём же вообще все эти научные работы? Наверняка у них очень заумные названия..." \
-"Но должны же слова иногда повторяться?"
+
+
 with st.echo(code_location='below'):
     # idea from https://plotly.com/python/choropleth-maps/
     fig = go.Figure(data=go.Choropleth(locations = country['CODE'],z = country[0],text = country['index'],colorscale = "spectral",
@@ -240,6 +359,7 @@ with st.echo(code_location='below'):
     fig.update_layout(
         title_text='Nobel prizes per country',geo=dict(showframe=False,showcoastlines=False,
             projection_type='equirectangular'),annotations = [dict(x=0.55, y=0.1, xref='paper',yref='paper', text="Можно туда сюда поводить потыкать",showarrow = False)])
+"Карта номер два:"
 st.write(fig)
 
 
@@ -248,7 +368,7 @@ with st.echo(code_location='below'):
     text = ""
     for i in data[data["category"]==s]["motivation"]:
         text+= " "+i
-    mask = np.array(Image.open("Literture.png"))
+    mask = np.array(Image.open("Literature.png"))
     #FROM https://towardsdatascience.com/create-word-cloud-into-any-shape-you-want-using-python-d0b88834bc32
     mask_colors = ImageColorGenerator(mask)
     wc = WordCloud(stopwords=STOPWORDS, mask=mask, background_color="white", max_words=2000, max_font_size=256,
@@ -257,115 +377,9 @@ with st.echo(code_location='below'):
     wc.generate(text)
     plt.imshow(wc, interpolation="bilinear")
     plt.axis('off')
-st.pyplot()
-
-
-
-with st.echo(code_location='below'):
-    univ = data_year[["Year", "male"]].copy()
-
-    for i in set(data["category"].to_list()):
-        univ[i] = 0
-
-    for j in ["Literature","Chemistry", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]:
-        for i in data_year["Year"]:
-            if i == 1901:
-                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
-                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))
-            else:
-                univ.loc[i - 1901 - 3 * int(i / 1943)][j] = int(
-                    data[data["awardYear"] == int(i)]["category"].to_list().count(j))+int(univ.loc[i - 1902 - 3 * int(i / 1943)][j])
-    univ = univ.set_index("Year").drop(columns="male")
-    print(univ)
-    print(univ.sort_values(univ.loc["2019"],axis=1))
-
-
-
-the_plot = st.pyplot(plt)
-def animate(i, x, y, colors):
-    ax.barh(x, width=y, color=colors)
-    ax.set_title(i,)
-    the_plot.pyplot(plt)
-
-fig, ax = plt.subplots()
-for i in range(110):
-    width = univ.iloc[i].values
-    animate(i, univ.iloc[i].index, width, colors)
-    time.sleep(0.2)
-
-
-
-aue  = st.checkbox("Го еще раз?",["No","Yes"])
-
-
-
-"""fig, ax = plt.subplots()
-camera = Camera(fig)
-for i in range(20):
-    ax.barh(univ.iloc[i].index, width=univ.iloc[i].values, color=colors)
-    camera.snap()
-camera.animate()
-st.pyplot()"""
-
-
-
-yes  = st.checkbox("Хочу посмотреть сразу на все предметы")
-if yes == True:
-    with st.echo(code_location='below'):
-        for j in b:
-            text = ""
-            for i in data[data["category"] == j]["motivation"]:
-                text += " " + i
-            wordcloud = WordCloud(width=400, height=400, margin=0, background_color="white").generate(text)
-            plt.subplot(2, 3, b.index(j) + 1)
-            plt.imshow(wordcloud, interpolation='bilinear')
-            plt.axis("off")
-            plt.title(str(j))
-            plt.margins(x=0, y=0)
-
-
-if page == "Search":
-    desired_width = 320
-    pd.set_option('display.width', desired_width)
-    pd.set_option('display.max_columns', 10)
-
-
-    data = pd.read_csv('complete.csv', delimiter=',').sort_values("awardYear").reset_index()
-    del data["index"]
-
-    # Повтор из прошлого цикла
-    data["gender"] = data["gender"].fillna("Organization")
-    data_year = pd.DataFrame({"Year": range(1901, 1940), "male": 0, "female": 0, "Organization": 0})
-    data_year2 = pd.DataFrame({"Year": range(1943, 2020), "male": 0, "female": 0, "Organization": 0})
-    data_year = pd.concat([data_year, data_year2], ignore_index=True)
-    for j in ["male", "female", "Organization"]:
-        for i in range(1901, 1939):
-            data_year.loc[i - 1901][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
-        for i in range(1943, 2020):
-            data_year.loc[i - 1904][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
-    a = ["Chemistry", "Literature", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]
-
-    cat = st.selectbox('Выберите интересующую вас область:', a)
-    year = st.selectbox('Выберите интересующий вас год:', range(1901,2020))
-    if year>1939 and year < 1943:
-        "В этом году нобелевскую премию по данному предмету никто не получал. Да и по другим претметам тоже. " \
-        "Война всё-так дело серьезное"
-
-    else:
-        if len(data[data["awardYear"] == year][data["category"] == cat]) ==0:
-            "В этом году по"+" "+cat+" никто не получал премию. Знаете почему? Её тогда ещё не было)) " \
-                                     "Она появилась в 1969."
-
-        elif len(data[data["awardYear"] == year][data["category"] == cat]) ==1:
-            "В этом году Нобелевскую премию по "+str(cat)+" получил "+ \
-            data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
-            "На момент"
-
-
-
-
 "Интересно, а о чём же вообще все эти научные работы? Наверняка у них очень заумные названия..." \
 "Но должны же слова иногда повторяться?"
+st.pyplot()
 
 yes  = st.checkbox("Хочу посмотреть сразу на все предметы")
 if yes == True:
@@ -380,44 +394,5 @@ if yes == True:
             plt.axis("off")
             plt.title(str(j))
             plt.margins(x=0, y=0)
-st.pyplot()
-
-
-
-if page == "Search":
-    desired_width = 320
-    pd.set_option('display.width', desired_width)
-    pd.set_option('display.max_columns', 10)
-
-
-    data = pd.read_csv('complete.csv', delimiter=',').sort_values("awardYear").reset_index()
-    del data["index"]
-
-    # Повтор из прошлого цикла
-    data["gender"] = data["gender"].fillna("Organization")
-    data_year = pd.DataFrame({"Year": range(1901, 1940), "male": 0, "female": 0, "Organization": 0})
-    data_year2 = pd.DataFrame({"Year": range(1943, 2020), "male": 0, "female": 0, "Organization": 0})
-    data_year = pd.concat([data_year, data_year2], ignore_index=True)
-    for j in ["male", "female", "Organization"]:
-        for i in range(1901, 1939):
-            data_year.loc[i - 1901][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
-        for i in range(1943, 2020):
-            data_year.loc[i - 1904][j] = int(data[data["awardYear"] == int(i)]["gender"].to_list().count(j))
-    a = ["Chemistry", "Literature", "Physiology or Medicine", "Peace", "Physics", "Economic Sciences"]
-
-    cat = st.selectbox('Выберите интересующую вас область:', a)
-    year = st.selectbox('Выберите интересующий вас год:', range(1901,2020))
-    if year>1939 and year < 1943:
-        "В этом году нобелевскую премию по данному предмету никто не получал. Да и по другим претметам тоже. " \
-        "Война всё-так дело серьезное"
-
-    else:
-        if len(data[data["awardYear"] == year][data["category"] == cat]) ==0:
-            "В этом году по"+" "+cat+" никто не получал премию. Знаете почему? Её тогда ещё не было)) " \
-                                     "Она появилась в 1969."
-
-        elif len(data[data["awardYear"] == year][data["category"] == cat]) ==1:
-            "В этом году Нобелевскую премию по "+str(cat)+" получил "+ \
-            data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
-            "На момент"
+    st.pyplot()
 
