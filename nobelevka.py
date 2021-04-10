@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 import time
-import plotly.express as px
 import seaborn as sns
 import squarify
 import pycountry
@@ -11,7 +10,7 @@ import geopandas
 import plotly.graph_objects as go
 from PIL import Image
 from wordcloud import WordCloud, STOPWORDS,ImageColorGenerator
-from celluloid import Camera
+
 
 st.title("Nobelevo4ka")
 
@@ -83,7 +82,7 @@ with st.echo(code_location='below'):
 "Стой!!! Совсем забыл сказать, ты можешь воспользоваться уникальной поисковой системой!  Она бесполезная, но вдруг тебе пригодится..." \
 "Код я спрятал, потому что он большой и некрасивый"
 
-cat = st.selectbox('Выберите интересующую вас область:',
+"""cat = st.selectbox('Выберите интересующую вас область:',
                    ["Literature", "Chemistry", "Physiology or Medicine", "Physics", "Economic Sciences"])
 year = st.selectbox('Выберите интересующий вас год:', range(1901, 2020))
 
@@ -99,13 +98,13 @@ else:
         data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0]
 
         "За что получил? Тут всё очев: " + str(data[data["awardYear"] == year][data["category"] == cat]["motivation"].iloc[0])
-        if bool(data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0]) == False:
+        if data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0] == "":
             st.write("Датафрейм не знает, когда этот человек родился, значит и нам не положено")
         else:
             st.write("Дата рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
                      + " - " + \
                      data[data["awardYear"] == year][data["category"] == cat]["birth_date"].iloc[0])
-        if bool(data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0]) == False:
+        if data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"].iloc[0] == "":
             st.write("Датафрейм не знает, где она родилась, значит и нам не положено")
         else:
             st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat]["name"].iloc[0])
@@ -119,19 +118,19 @@ else:
 
         "За что получил? Тут всё очев: " + str(
             data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["motivation"].iloc[0])
-        if bool(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_date"].iloc[0]) == False:
+        if data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_date"].iloc[0] == "":
             st.write("Датафрейм не знает, когда этот человек родился, значит и нам не положено")
         else:
             st.write("Дата рождения " + str(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["name"].iloc[0])
                      + " - " + \
                      data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_date"].iloc[0])
-        if bool(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_countryNow"].iloc[0]) == False:
+        if data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["birth_countryNow"].iloc[0] == "":
             st.write("Датафрейм не знает, где она родилась, значит и нам не положено")
         else:
             st.write("Место рождения " + str(data[data["awardYear"] == year][data["category"] == cat][data["name"] == chel]["name"].iloc[0])
                      + " - " + \
                      data[data["awardYear"] == year][data["category"] == cat]["birth_countryNow"][data["name"] == chel].iloc[0])
-
+"""
 
 
 
